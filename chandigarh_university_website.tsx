@@ -166,10 +166,12 @@ export default function App() {
           <HomeSection
             onExplorePrograms={() => setActiveTab('programs')}
             onVirtualTour={() => setActiveTab('virtual-tour')}
+            onEngineeringPrograms={() => setActiveTab('engineering')}
           />
         )}
         {activeTab === 'about' && <AboutSection />}
-        {activeTab === 'programs' && <ProgramsSection />}
+        {activeTab === 'programs' && <ProgramsSection onEngineeringPrograms={() => setActiveTab('engineering')} />}
+        {activeTab === 'engineering' && <EngineeringProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
         {activeTab === 'virtual-tour' && <VirtualTourSection onBackHome={() => setActiveTab('home')} />}
         {activeTab === 'contact' && <ContactSection />}
         {activeTab === 'admissions' && (
@@ -244,7 +246,7 @@ export default function App() {
   );
 }
 
-function HomeSection({ onExplorePrograms, onVirtualTour }) {
+function HomeSection({ onExplorePrograms, onVirtualTour, onEngineeringPrograms }) {
   const [news, setNews] = useState([]);
   const [loadingNews, setLoadingNews] = useState(true);
 
@@ -325,7 +327,7 @@ function HomeSection({ onExplorePrograms, onVirtualTour }) {
             ].map((program) => (
               <button
                 key={program.name}
-                onClick={onExplorePrograms}
+                onClick={program.name === 'Engineering' ? onEngineeringPrograms : onExplorePrograms}
                 className="group text-left border border-gray-200 rounded-lg p-5 hover:border-red-700 hover:shadow-lg transition-all duration-300 bg-gray-50 hover:bg-white"
               >
                 <div className="flex items-start justify-between gap-4">
@@ -511,7 +513,80 @@ function VirtualTourSection({ onBackHome }) {
   );
 }
 
-function ProgramsSection() {
+function EngineeringProgramsSection({ onBackToPrograms }) {
+  const programs = [
+    { title: 'B.E. Computer Science & Engineering', level: 'Undergraduate', duration: '4 years', focus: 'Software, AI, data, and systems' },
+    { title: 'B.E. Electronics & Communication', level: 'Undergraduate', duration: '4 years', focus: 'Embedded systems and communication' },
+    { title: 'M.E. Computer Science & Engineering', level: 'Postgraduate', duration: '2 years', focus: 'Advanced computing and research' },
+    { title: 'B.E. Mechanical Engineering', level: 'Undergraduate', duration: '4 years', focus: 'Design, automation, and manufacturing' },
+    { title: 'B.E. Civil Engineering', level: 'Undergraduate', duration: '4 years', focus: 'Infrastructure and sustainable design' },
+    { title: 'B.E. Artificial Intelligence & Machine Learning', level: 'Undergraduate', duration: '4 years', focus: 'Intelligent products and applied AI' },
+  ];
+
+  return (
+    <div className="w-full bg-gray-50 flex-grow">
+      <section className="bg-red-900 text-white py-14 md:py-20">
+        <div className="container mx-auto px-4 w-full">
+          <button onClick={onBackToPrograms} className="inline-flex items-center gap-2 text-red-200 hover:text-white font-semibold mb-8 transition-colors">
+            <ChevronRight size={18} className="rotate-180" /> All academic programs
+          </button>
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-yellow-300 mb-3">School of Engineering</p>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-5">Build what comes next.</h1>
+            <p className="text-lg md:text-xl text-red-100 leading-relaxed">Learn from industry-connected faculty, work in advanced labs, and turn engineering fundamentals into solutions that matter.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-3xl">
+            <div><p className="text-3xl font-extrabold text-yellow-300">30+</p><p className="text-sm text-red-200 mt-1">Programs</p></div>
+            <div><p className="text-3xl font-extrabold text-yellow-300">4 years</p><p className="text-sm text-red-200 mt-1">Bachelor's degrees</p></div>
+            <div><p className="text-3xl font-extrabold text-yellow-300">AICTE</p><p className="text-sm text-red-200 mt-1">Approved programs</p></div>
+            <div><p className="text-3xl font-extrabold text-yellow-300">50+</p><p className="text-sm text-red-200 mt-1">Lab experiences</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 md:py-16">
+        <div className="container mx-auto px-4 w-full">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-700 mb-2">Choose your path</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Engineering programs</h2>
+            </div>
+            <p className="text-gray-600 max-w-lg md:text-right">Explore undergraduate and postgraduate options designed around emerging technologies and real engineering practice.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {programs.map((program) => (
+              <article key={program.title} className="bg-white border border-gray-200 rounded-lg p-6 hover:border-red-700 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="w-11 h-11 rounded-lg bg-red-50 text-red-700 flex items-center justify-center"><BookOpen size={22} /></div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{program.level}</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-3">{program.title}</h3>
+                <p className="text-gray-600 text-sm mb-5">{program.focus}</p>
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm">
+                  <span className="text-gray-500">Duration</span>
+                  <span className="font-bold text-gray-900">{program.duration}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-12 bg-white border border-gray-200 rounded-lg p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to start building?</h2>
+              <p className="text-gray-600">Explore eligibility, fee details, and the next admission cycle.</p>
+            </div>
+            <button className="bg-red-700 hover:bg-red-800 text-white px-6 py-3 rounded-md font-bold inline-flex items-center justify-center gap-2 transition-colors">
+              Start your application <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProgramsSection({ onEngineeringPrograms }) {
     const [programs, setPrograms] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -543,7 +618,7 @@ function ProgramsSection() {
                                     <div className="text-4xl mb-4">{prog.icon}</div>
                                     <h3 className="text-xl font-bold text-gray-800 mb-2">{prog.name}</h3>
                                     <p className="text-sm text-gray-500 mb-4 font-medium">{prog.count}</p>
-                                    <button className="flex items-center text-red-700 font-semibold text-sm group-hover:gap-2 transition-all">
+                                    <button onClick={prog.id === 'eng' ? onEngineeringPrograms : undefined} className="flex items-center text-red-700 font-semibold text-sm group-hover:gap-2 transition-all">
                                         Explore Details <ChevronRight size={16} />
                                     </button>
                                 </div>
