@@ -167,11 +167,13 @@ export default function App() {
             onExplorePrograms={() => setActiveTab('programs')}
             onVirtualTour={() => setActiveTab('virtual-tour')}
             onEngineeringPrograms={() => setActiveTab('engineering')}
+            onBusinessPrograms={() => setActiveTab('business')}
           />
         )}
         {activeTab === 'about' && <AboutSection />}
-        {activeTab === 'programs' && <ProgramsSection onEngineeringPrograms={() => setActiveTab('engineering')} />}
+        {activeTab === 'programs' && <ProgramsSection onEngineeringPrograms={() => setActiveTab('engineering')} onBusinessPrograms={() => setActiveTab('business')} />}
         {activeTab === 'engineering' && <EngineeringProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
+        {activeTab === 'business' && <BusinessProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
         {activeTab === 'virtual-tour' && <VirtualTourSection onBackHome={() => setActiveTab('home')} />}
         {activeTab === 'contact' && <ContactSection />}
         {activeTab === 'admissions' && (
@@ -246,7 +248,7 @@ export default function App() {
   );
 }
 
-function HomeSection({ onExplorePrograms, onVirtualTour, onEngineeringPrograms }) {
+function HomeSection({ onExplorePrograms, onVirtualTour, onEngineeringPrograms, onBusinessPrograms }) {
   const [news, setNews] = useState([]);
   const [loadingNews, setLoadingNews] = useState(true);
 
@@ -327,7 +329,7 @@ function HomeSection({ onExplorePrograms, onVirtualTour, onEngineeringPrograms }
             ].map((program) => (
               <button
                 key={program.name}
-                onClick={program.name === 'Engineering' ? onEngineeringPrograms : onExplorePrograms}
+                onClick={program.name === 'Engineering' ? onEngineeringPrograms : program.name === 'Business Management' ? onBusinessPrograms : onExplorePrograms}
                 className="group text-left border border-gray-200 rounded-lg p-5 hover:border-red-700 hover:shadow-lg transition-all duration-300 bg-gray-50 hover:bg-white"
               >
                 <div className="flex items-start justify-between gap-4">
@@ -586,7 +588,80 @@ function EngineeringProgramsSection({ onBackToPrograms }) {
   );
 }
 
-function ProgramsSection({ onEngineeringPrograms }) {
+function BusinessProgramsSection({ onBackToPrograms }) {
+  const programs = [
+    { title: 'BBA - Business Administration', level: 'Undergraduate', duration: '3 years', focus: 'Management, entrepreneurship, and strategy' },
+    { title: 'BBA - Business Analytics', level: 'Undergraduate', duration: '3 years', focus: 'Data-led decisions and business intelligence' },
+    { title: 'B.Com. (Hons.)', level: 'Undergraduate', duration: '3 years', focus: 'Accounting, finance, and commerce' },
+    { title: 'MBA - Business Management', level: 'Postgraduate', duration: '2 years', focus: 'Leadership, markets, and transformation' },
+    { title: 'MBA - International Business', level: 'Postgraduate', duration: '2 years', focus: 'Global trade and cross-border growth' },
+    { title: 'MBA - Digital Marketing', level: 'Postgraduate', duration: '2 years', focus: 'Brand, content, and digital strategy' },
+  ];
+
+  return (
+    <div className="w-full bg-gray-50 flex-grow">
+      <section className="bg-slate-900 text-white py-14 md:py-20">
+        <div className="container mx-auto px-4 w-full">
+          <button onClick={onBackToPrograms} className="inline-flex items-center gap-2 text-slate-300 hover:text-white font-semibold mb-8 transition-colors">
+            <ChevronRight size={18} className="rotate-180" /> All academic programs
+          </button>
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-yellow-300 mb-3">School of Business</p>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-5">Lead with clarity.</h1>
+            <p className="text-lg md:text-xl text-slate-300 leading-relaxed">Develop the strategic thinking, practical confidence, and global perspective to create value in a fast-changing business world.</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-3xl">
+            <div><p className="text-3xl font-extrabold text-yellow-300">15+</p><p className="text-sm text-slate-400 mt-1">Programs</p></div>
+            <div><p className="text-3xl font-extrabold text-yellow-300">100%</p><p className="text-sm text-slate-400 mt-1">Industry aligned</p></div>
+            <div><p className="text-3xl font-extrabold text-yellow-300">30+</p><p className="text-sm text-slate-400 mt-1">Specializations</p></div>
+            <div><p className="text-3xl font-extrabold text-yellow-300">Global</p><p className="text-sm text-slate-400 mt-1">Business exposure</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-14 md:py-16">
+        <div className="container mx-auto px-4 w-full">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-700 mb-2">Choose your path</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Business management programs</h2>
+            </div>
+            <p className="text-gray-600 max-w-lg md:text-right">Build a strong business foundation, then shape your studies around the markets and ideas you want to lead.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {programs.map((program) => (
+              <article key={program.title} className="bg-white border border-gray-200 rounded-lg p-6 hover:border-slate-900 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="w-11 h-11 rounded-lg bg-slate-100 text-slate-900 flex items-center justify-center"><Users size={22} /></div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{program.level}</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-3">{program.title}</h3>
+                <p className="text-gray-600 text-sm mb-5">{program.focus}</p>
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm">
+                  <span className="text-gray-500">Duration</span>
+                  <span className="font-bold text-gray-900">{program.duration}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-12 bg-white border border-gray-200 rounded-lg p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to shape the market?</h2>
+              <p className="text-gray-600">Explore eligibility, fee details, and the next admission cycle.</p>
+            </div>
+            <button className="bg-red-700 hover:bg-red-800 text-white px-6 py-3 rounded-md font-bold inline-flex items-center justify-center gap-2 transition-colors">
+              Start your application <ChevronRight size={18} />
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProgramsSection({ onEngineeringPrograms, onBusinessPrograms }) {
     const [programs, setPrograms] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -618,7 +693,7 @@ function ProgramsSection({ onEngineeringPrograms }) {
                                     <div className="text-4xl mb-4">{prog.icon}</div>
                                     <h3 className="text-xl font-bold text-gray-800 mb-2">{prog.name}</h3>
                                     <p className="text-sm text-gray-500 mb-4 font-medium">{prog.count}</p>
-                                    <button onClick={prog.id === 'eng' ? onEngineeringPrograms : undefined} className="flex items-center text-red-700 font-semibold text-sm group-hover:gap-2 transition-all">
+                                    <button onClick={prog.id === 'eng' ? onEngineeringPrograms : prog.id === 'biz' ? onBusinessPrograms : undefined} className="flex items-center text-red-700 font-semibold text-sm group-hover:gap-2 transition-all">
                                         Explore Details <ChevronRight size={16} />
                                     </button>
                                 </div>
