@@ -1,0 +1,49 @@
+name: CI Pipeline
+
+# Equivalent to triggers { githubPush() }
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    # Since your Jenkinsfile used 'bat' (Windows batch), we use a Windows runner. 
+    # If you prefer Linux, you can change this to 'ubuntu-latest'.
+    runs-on: windows-latest
+
+    steps:
+      # Equivalent to stage('Checkout Code')
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          repository: Harshbhardwaj01/Chandigarh-University
+          ref: main
+
+      # Equivalent to tools { nodejs 'Node20' }
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Equivalent to stage('Install Dependencies')
+      - name: Install Dependencies
+        run: npm ci
+
+      # Equivalent to stage('Run Build')
+      - name: Run Build
+        run: npm run build --if-present
+
+      # Equivalent to stage('Run Tests')
+      - name: Run Tests
+        run: npm test --if-present
+
+      # Equivalent to stage('Docker Login')
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USR }}
+          password: ${{ secrets.DOCKER_PSW }}
+          
+      # Note: GitHub's docker/login-action automatically executes a 'docker logout' 
+      # at the end of the job, completely replacing your Jenkins 'post { always { ... } }' block.
