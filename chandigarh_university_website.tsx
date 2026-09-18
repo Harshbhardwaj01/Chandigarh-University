@@ -162,7 +162,7 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-grow flex flex-col">
-        {activeTab === 'home' && <HomeSection />}
+        {activeTab === 'home' && <HomeSection onExplorePrograms={() => setActiveTab('programs')} />}
         {activeTab === 'about' && <AboutSection />}
         {activeTab === 'programs' && <ProgramsSection />}
         {activeTab === 'contact' && <ContactSection />}
@@ -238,7 +238,7 @@ export default function App() {
   );
 }
 
-function HomeSection() {
+function HomeSection({ onExplorePrograms }) {
   const [news, setNews] = useState([]);
   const [loadingNews, setLoadingNews] = useState(true);
 
@@ -273,7 +273,7 @@ function HomeSection() {
               Experience world-class education, unmatched global exposure, and outstanding placement opportunities at India's youngest university to be ranked by QS World University Rankings.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 w-full">
-              <button className="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-md font-bold text-lg transition-all shadow-[0_0_15px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 w-full sm:w-auto">
+              <button onClick={onExplorePrograms} className="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-md font-bold text-lg transition-all shadow-[0_0_15px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 w-full sm:w-auto">
                 Explore Programs <ChevronRight size={20} />
               </button>
               <button className="bg-transparent border-2 border-white hover:bg-white/10 text-white px-8 py-3 rounded-md font-bold text-lg transition-colors w-full sm:w-auto">
@@ -292,6 +292,49 @@ function HomeSection() {
             <StatCard icon={<Users size={32}/>} number="30,000+" label="Students Enrolled" />
             <StatCard icon={<Trophy size={32}/>} number="9124" label="Placement Offers (2025)" />
             <StatCard icon={<Globe size={32}/>} number="460+" label="International Tie-ups" />
+          </div>
+        </div>
+      </section>
+
+      {/* Program Explorer */}
+      <section className="py-16 bg-white w-full">
+        <div className="container mx-auto px-4 w-full">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-700 mb-2">Find your direction</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Explore Programs</h2>
+            </div>
+            <p className="text-gray-600 max-w-xl md:text-right">Build the skills, confidence, and connections to move into the future you want.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            {[
+              { name: 'Engineering', count: '30+ Programs', icon: '💻' },
+              { name: 'Business Management', count: '15+ Programs', icon: '📊' },
+              { name: 'Law', count: '5 Programs', icon: '⚖️' },
+              { name: 'Arts & Humanities', count: '20+ Programs', icon: '🎨' },
+              { name: 'Sciences', count: '25+ Programs', icon: '🔬' },
+              { name: 'Allied Health Sciences', count: '10+ Programs', icon: '⚕️' },
+            ].map((program) => (
+              <button
+                key={program.name}
+                onClick={onExplorePrograms}
+                className="group text-left border border-gray-200 rounded-lg p-5 hover:border-red-700 hover:shadow-lg transition-all duration-300 bg-gray-50 hover:bg-white"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <span className="text-3xl" aria-hidden="true">{program.icon}</span>
+                  <ChevronRight size={20} className="text-gray-400 group-hover:text-red-700 group-hover:translate-x-1 transition-all" />
+                </div>
+                <h3 className="font-bold text-lg text-gray-900 mt-5 mb-1">{program.name}</h3>
+                <p className="text-sm text-gray-500">{program.count}</p>
+              </button>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <button onClick={onExplorePrograms} className="inline-flex items-center gap-2 text-red-700 font-bold hover:text-red-900 transition-colors">
+              View all academic programs <ChevronRight size={18} />
+            </button>
           </div>
         </div>
       </section>
