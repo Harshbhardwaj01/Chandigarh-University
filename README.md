@@ -36,6 +36,7 @@ The frontend runs on port `5000` and proxies `/api` requests to the backend on p
 - `npm run dev` - Start the Vite development server.
 - `npm run backend` - Start the Express API server.
 - `npm run build` - Create a production frontend build.
+- `npm test` - Run the backend smoke test.
 
 ## Jenkins CI
 
