@@ -162,9 +162,15 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-grow flex flex-col">
-        {activeTab === 'home' && <HomeSection onExplorePrograms={() => setActiveTab('programs')} />}
+        {activeTab === 'home' && (
+          <HomeSection
+            onExplorePrograms={() => setActiveTab('programs')}
+            onVirtualTour={() => setActiveTab('virtual-tour')}
+          />
+        )}
         {activeTab === 'about' && <AboutSection />}
         {activeTab === 'programs' && <ProgramsSection />}
+        {activeTab === 'virtual-tour' && <VirtualTourSection onBackHome={() => setActiveTab('home')} />}
         {activeTab === 'contact' && <ContactSection />}
         {activeTab === 'admissions' && (
           <div className="flex-grow flex items-center justify-center bg-gray-100 p-8 text-center">
@@ -238,7 +244,7 @@ export default function App() {
   );
 }
 
-function HomeSection({ onExplorePrograms }) {
+function HomeSection({ onExplorePrograms, onVirtualTour }) {
   const [news, setNews] = useState([]);
   const [loadingNews, setLoadingNews] = useState(true);
 
@@ -276,7 +282,8 @@ function HomeSection({ onExplorePrograms }) {
               <button onClick={onExplorePrograms} className="bg-red-600 hover:bg-red-500 text-white px-8 py-3 rounded-md font-bold text-lg transition-all shadow-[0_0_15px_rgba(220,38,38,0.5)] flex items-center justify-center gap-2 w-full sm:w-auto">
                 Explore Programs <ChevronRight size={20} />
               </button>
-              <button className="bg-transparent border-2 border-white hover:bg-white/10 text-white px-8 py-3 rounded-md font-bold text-lg transition-colors w-full sm:w-auto">
+              <button onClick={onVirtualTour} className="bg-transparent border-2 border-white hover:bg-white/10 text-white px-8 py-3 rounded-md font-bold text-lg transition-colors w-full sm:w-auto flex items-center justify-center gap-2">
+                <Globe size={20} />
                 Virtual Tour
               </button>
             </div>
@@ -443,6 +450,61 @@ function AboutSection() {
                </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VirtualTourSection({ onBackHome }) {
+  const tourStops = [
+    { id: 'campus', label: 'Campus Life', title: 'A campus built for possibility', description: 'Explore green open spaces, collaborative learning zones, and a vibrant community spread across our 200-acre campus.', accent: 'from-red-900 to-red-700', icon: <Globe size={30} /> },
+    { id: 'library', label: 'Central Library', title: 'Quiet spaces for big ideas', description: 'Find your next breakthrough in a technology-enabled library with extensive print and digital resources.', accent: 'from-slate-900 to-slate-700', icon: <BookOpen size={30} /> },
+    { id: 'innovation', label: 'Innovation Hub', title: 'Turn curiosity into creation', description: 'Meet the labs, mentors, and makerspaces that help students move from a first idea to a real-world solution.', accent: 'from-amber-700 to-orange-600', icon: <Trophy size={30} /> },
+  ];
+  const [activeStop, setActiveStop] = useState(tourStops[0]);
+
+  return (
+    <div className="w-full bg-gray-50 flex-grow py-12 md:py-16">
+      <div className="container mx-auto px-4 w-full">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-red-700 mb-2">Chandigarh University</p>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900">Take the virtual tour</h1>
+            <p className="text-gray-600 mt-4 max-w-2xl">Move through a few signature spaces and get a feel for the places where CU students learn, build, and belong.</p>
+          </div>
+          <button onClick={onBackHome} className="inline-flex items-center gap-2 text-red-700 font-bold hover:text-red-900 transition-colors">
+            <ChevronRight size={18} className="rotate-180" /> Back to home
+          </button>
+        </div>
+
+        <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${activeStop.accent} text-white min-h-[300px] md:min-h-[390px] p-8 md:p-12 flex items-end shadow-xl`}>
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, white 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+          <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full border border-white/20"></div>
+          <div className="absolute right-12 top-12 w-32 h-32 rounded-full border border-white/20"></div>
+          <div className="relative max-w-2xl">
+            <div className="w-16 h-16 rounded-xl bg-white/15 border border-white/25 flex items-center justify-center mb-6">{activeStop.icon}</div>
+            <p className="text-sm font-bold uppercase tracking-widest text-yellow-300 mb-3">{activeStop.label}</p>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">{activeStop.title}</h2>
+            <p className="text-white/85 text-lg leading-relaxed">{activeStop.description}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          {tourStops.map((stop, index) => (
+            <button
+              key={stop.id}
+              onClick={() => setActiveStop(stop)}
+              className={`text-left p-5 rounded-lg border transition-all ${activeStop.id === stop.id ? 'bg-white border-red-700 shadow-md' : 'bg-white/60 border-gray-200 hover:border-red-300'}`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">0{index + 1}</span>
+                <ChevronRight size={18} className={activeStop.id === stop.id ? 'text-red-700' : 'text-gray-400'} />
+              </div>
+              <h3 className="font-bold text-gray-900">{stop.label}</h3>
+              <p className="text-sm text-gray-500 mt-1">{activeStop.id === stop.id ? 'Now exploring' : 'Explore this stop'}</p>
+            </button>
+          ))}
         </div>
       </div>
     </div>
