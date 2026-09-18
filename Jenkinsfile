@@ -1,64 +1,56 @@
 pipeline {
     agent any
 
-    options {
-        timestamps()
-        disableConcurrentBuilds()
+    triggers {
+        githubPush()
     }
 
+    tools {
+        nodejs 'Node20'
+    }
+
+    // ❌ REMOVED the environment block that was crashing the pipeline
+
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/Harshbhardwaj01/Chandigarh-University.git'
             }
         }
 
-        stage('Install') {
+        stage('Install Dependencies') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'npm ci'
-                    } else {
-                        bat 'npm ci'
-                    }
-                }
+                bat 'npm ci'
             }
         }
 
-        stage('Type Check') {
+        stage('Run Build') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'npx tsc --noEmit'
-                    } else {
-                        bat 'npx tsc --noEmit'
-                    }
-                }
+                bat 'npm run build '
             }
         }
 
-        stage('Build') {
+        stage('Run Tests') {
             steps {
-                script {
-                    if (isUnix()) {
-                        sh 'npm run build'
-                    } else {
-                        bat 'npm run build'
-                    }
-                }
+                bat 'npm test '
             }
         }
 
-        stage('Archive') {
+        stage('Docker Login') {
             steps {
-                archiveArtifacts artifacts: 'dist/**', fingerprint: true
+                // ✅ Fetch the credentials only when this specific stage runs
+               withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PSW', usernameVariable: 'DOCKER_USR')]) {
+    // Notice there is NO space between %DOCKER_PSW% and the | symbol
+    bat 'echo %DOCKER_PSW%| docker login -u %DOCKER_USR% --password-stdin'
+}
             }
         }
     }
 
     post {
         always {
-            deleteDir()
+            // Cleans up the credentials from the Windows machine afterward
+            bat 'docker logout'
         }
     }
 }
