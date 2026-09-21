@@ -4,13 +4,33 @@
 
 import express from 'express';
 import cors from 'cors';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+const DATABASE_PATH = process.env.APPLICATIONS_DB_PATH || path.join(path.dirname(fileURLToPath(import.meta.url)), 'data', 'applications.json');
 
 // Middleware to parse JSON and allow cross-origin requests from the React frontend
 app.use(cors());
 app.use(express.json());
+
+async function readApplications() {
+  try {
+    return JSON.parse(await fs.readFile(DATABASE_PATH, 'utf8'));
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+}
+
+async function saveApplication(application) {
+  const applications = await readApplications();
+  applications.push(application);
+  await fs.mkdir(path.dirname(DATABASE_PATH), { recursive: true });
+  await fs.writeFile(DATABASE_PATH, JSON.stringify(applications, null, 2) + '\n');
+}
 
 // These arrays act as our database for this basic backend implementation.
 const newsData = [
@@ -64,6 +84,33 @@ app.post('/api/contact', (req, res) => {
   setTimeout(() => {
     res.status(200).json({ success: true, message: 'Message received successfully!' });
   }, 800);
+});
+
+// POST /api/applications - Save a 2026 admission application
+app.post('/api/applications', async (req, res) => {
+  const { name, email, phone, program, city } = req.body;
+
+  if (!name || !email || !phone || !program || !city) {
+    return res.status(400).json({ success: false, error: 'Name, email, phone, program, and city are required.' });
+  }
+
+  const application = {
+    id: `APP-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    name: name.trim(),
+    email: email.trim().toLowerCase(),
+    phone: phone.trim(),
+    program: program.trim(),
+    city: city.trim(),
+    submittedAt: new Date().toISOString(),
+  };
+
+  try {
+    await saveApplication(application);
+    res.status(201).json({ success: true, message: 'Application submitted successfully.', applicationId: application.id });
+  } catch (error) {
+    console.error('Failed to save application:', error);
+    res.status(500).json({ success: false, error: 'Application could not be saved.' });
+  }
 });
 
 // Start the Express server

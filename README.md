@@ -59,6 +59,9 @@ Each push to `main` will then run the validation and build pipeline. Jenkins cre
 - `GET /api/news` - Return campus news items.
 - `GET /api/programs` - Return academic programs.
 - `POST /api/contact` - Submit a contact form with `name`, `email`, and `message`.
+- `POST /api/applications` - Save a 2026 admission application with `name`, `email`, `phone`, `program`, and `city`.
+
+Admission applications are stored in `data/applications.json`. Set `APPLICATIONS_DB_PATH` to use a different database file in another environment.
 
 ## Project Structure
 

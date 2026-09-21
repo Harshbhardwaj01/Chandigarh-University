@@ -63,6 +63,16 @@ const API_CLIENT = {
       });
     }
   },
+  submitApplication: async (data) => {
+    const res = await fetch(`${API_BASE_URL}/applications`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const response = await res.json();
+    if (!res.ok) throw new Error(response.error || 'Failed to submit application');
+    return response;
+  },
   getPrograms: async () => {
      try {
        const res = await fetch(`${API_BASE_URL}/programs`);
@@ -125,7 +135,7 @@ export default function App() {
                 {link.label}
               </button>
             ))}
-            <button className="bg-yellow-500 hover:bg-yellow-400 text-red-900 px-5 py-2 rounded-md font-bold transition-transform hover:scale-105 active:scale-95 shadow-md">
+            <button onClick={() => setActiveTab('apply')} className="bg-yellow-500 hover:bg-yellow-400 text-red-900 px-5 py-2 rounded-md font-bold transition-transform hover:scale-105 active:scale-95 shadow-md">
               Apply Now
             </button>
           </nav>
@@ -152,7 +162,7 @@ export default function App() {
                   {link.label}
                 </button>
               ))}
-               <button className="bg-yellow-500 text-red-900 mt-4 px-4 py-3 rounded-md font-bold text-center">
+               <button onClick={() => { setActiveTab('apply'); setIsMenuOpen(false); }} className="bg-yellow-500 text-red-900 mt-4 px-4 py-3 rounded-md font-bold text-center">
                 Apply Now 2026
               </button>
             </div>
@@ -176,15 +186,8 @@ export default function App() {
         {activeTab === 'business' && <BusinessProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
         {activeTab === 'virtual-tour' && <VirtualTourSection onBackHome={() => setActiveTab('home')} />}
         {activeTab === 'contact' && <ContactSection />}
-        {activeTab === 'admissions' && (
-          <div className="flex-grow flex items-center justify-center bg-gray-100 p-8 text-center">
-             <div className="max-w-md">
-                <h2 className="text-3xl font-bold text-red-800 mb-4">Admissions 2026 Open</h2>
-                <p className="text-gray-600 mb-6">Join India's leading private university. Fast-track your career with our industry-aligned programs.</p>
-                <button className="bg-red-700 hover:bg-red-800 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-colors">Start Application</button>
-             </div>
-          </div>
-        )}
+          {activeTab === 'admissions' && <ApplicationSection />}
+          {activeTab === 'apply' && <ApplicationSection />}
       </main>
 
       {/* Footer */}
@@ -870,5 +873,49 @@ function ContactSection() {
         </div>
       </div>
     </div>
+  );
+}
+
+function ApplicationSection() {
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', program: '', city: '' });
+  const [status, setStatus] = useState({ loading: false, error: '', success: '' });
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setStatus({ loading: true, error: '', success: '' });
+    try {
+      const response = await API_CLIENT.submitApplication(formData);
+      setStatus({ loading: false, error: '', success: `Application received. Your reference is ${response.applicationId}.` });
+      setFormData({ name: '', email: '', phone: '', program: '', city: '' });
+    } catch (error) {
+      setStatus({ loading: false, error: error.message, success: '' });
+    }
+  };
+
+  return (
+    <section className="flex-grow bg-gray-50 py-12 md:py-16">
+      <div className="container mx-auto max-w-5xl px-4">
+        <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+          <div>
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-red-700">Admissions 2026</p>
+            <h2 className="mb-5 text-4xl font-extrabold text-gray-900">Start your CU journey.</h2>
+            <p className="text-lg leading-relaxed text-gray-600">Share a few details and our admissions team will help you choose the right program and next step.</p>
+            <div className="mt-8 border-l-4 border-yellow-500 pl-4 text-sm text-gray-600">Applications are collected securely for the 2026 admissions cycle.</div>
+          </div>
+          <form onSubmit={handleSubmit} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="text-sm font-semibold text-gray-700">Full name<input required name="name" value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
+              <label className="text-sm font-semibold text-gray-700">Email<input required type="email" name="email" value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
+              <label className="text-sm font-semibold text-gray-700">Phone<input required type="tel" name="phone" value={formData.phone} onChange={(event) => setFormData({ ...formData, phone: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
+              <label className="text-sm font-semibold text-gray-700">City<input required name="city" value={formData.city} onChange={(event) => setFormData({ ...formData, city: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
+              <label className="text-sm font-semibold text-gray-700 sm:col-span-2">Program of interest<select required name="program" value={formData.program} onChange={(event) => setFormData({ ...formData, program: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 bg-white px-3 py-3 font-normal outline-none focus:border-red-700"><option value="">Select a program</option><option>Engineering</option><option>Business Management</option><option>Law</option><option>Arts & Humanities</option><option>Sciences</option><option>Allied Health Sciences</option></select></label>
+            </div>
+            <button disabled={status.loading} className="mt-6 w-full rounded-md bg-red-700 px-5 py-3 font-bold text-white transition-colors hover:bg-red-800 disabled:cursor-wait disabled:opacity-60">{status.loading ? 'Submitting...' : 'Submit application'}</button>
+            {status.error && <p role="alert" className="mt-4 text-sm font-semibold text-red-700">{status.error}</p>}
+            {status.success && <p role="status" className="mt-4 text-sm font-semibold text-green-700">{status.success}</p>}
+          </form>
+        </div>
+      </div>
+    </section>
   );
 }
