@@ -1,4 +1,4 @@
-pipeline {
+pipeline { 
     agent any
 
     triggers {
@@ -9,7 +9,7 @@ pipeline {
         nodejs 'Node20'
     }
 
-    // ❌ REMOVED the environment block that was crashing the pipeline
+    
 
     stages {
         stage('Checkout Code') {
