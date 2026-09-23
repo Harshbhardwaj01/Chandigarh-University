@@ -120,7 +120,7 @@ export default function App() {
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold leading-tight tracking-wide">CHANDIGARH UNIVERSITY</h1>
-              <p className="text-xs text-red-200 tracking-wider">Discover. Learn. Empower.</p>
+              <p className="text-xs text-red-200 tracking-wider">Discover. Learn. Empower. Academics</p>
             </div>
           </div>
 
