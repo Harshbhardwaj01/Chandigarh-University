@@ -48,6 +48,16 @@ const programsData = [
   { id: 'med', name: 'Allied Health Sciences', icon: '⚕️', count: '10+ Programs' }
 ];
 
+// Health check route
+app.get('/api', (req, res) => {
+  res.json({ message: "Backend API is running successfully!" });
+});
+
+//application routes
+app.get('/api/applications', (req, res) => {
+  // Later, you will replace this with a database query (e.g., Application.find())
+  res.json({ message: "This route is working! Here is where your list of applications will go." });
+});
 
 // GET /api/news - Fetch latest news
 app.get('/api/news', (req, res) => {
