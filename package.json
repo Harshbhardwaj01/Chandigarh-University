@@ -15,6 +15,7 @@
     "express": "latest",
     "cors": "latest",
     "lucide-react": "latest",
+    "pg": "^8.23.0",
     "react": "latest",
     "react-dom": "latest",
     "tailwindcss": "latest",
