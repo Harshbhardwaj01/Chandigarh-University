@@ -64,7 +64,7 @@ const API_CLIENT = {
           } else {
             resolve({ success: true, message: 'Message received successfully!' });
           }
-        }, 1000);
+        }, 1000); 
       });
     }
     if (!res.ok) {
