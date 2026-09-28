@@ -16,6 +16,16 @@ const { Pool } = pg;
 const databasePool = process.env.DATABASE_URL
   ? new Pool({ connectionString: process.env.DATABASE_URL })
   : null;
+const databaseReady = databasePool
+  ? databasePool.query('CREATE UNIQUE INDEX IF NOT EXISTS applications_email_unique_idx ON applications (LOWER(email))')
+  : Promise.resolve();
+const cityOptions = new Set([
+  'Amritsar', 'Ahmedabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai',
+  'Dehradun', 'Delhi', 'Gurugram', 'Guwahati', 'Hyderabad', 'Indore', 'Jaipur', 'Jalandhar',
+  'Jammu', 'Kanpur', 'Kochi', 'Kolkata', 'Lucknow', 'Ludhiana', 'Mumbai', 'Mysuru',
+  'Nagpur', 'New Delhi', 'Noida', 'Patna', 'Pune', 'Rohtak', 'Shimla', 'Srinagar',
+  'Surat', 'Thiruvananthapuram', 'Varanasi', 'Visakhapatnam'
+]);
 
 // Middleware to parse JSON and allow cross-origin requests from the React frontend
 app.use(cors());
@@ -31,6 +41,8 @@ async function readApplications() {
 }
 
 async function saveApplication(application) {
+  await databaseReady;
+
   if (databasePool) {
     const result = await databasePool.query(
       `INSERT INTO applications (name, email, phone, program, city, submitted_at)
@@ -43,6 +55,11 @@ async function saveApplication(application) {
   }
 
   const applications = await readApplications();
+  if (applications.some((entry) => entry.email?.toLowerCase() === application.email)) {
+    const duplicateError = new Error('Duplicate email');
+    duplicateError.code = '23505';
+    throw duplicateError;
+  }
   applications.push(application);
   await fs.mkdir(path.dirname(DATABASE_PATH), { recursive: true });
   await fs.writeFile(DATABASE_PATH, JSON.stringify(applications, null, 2) + '\n');
@@ -129,18 +146,14 @@ app.post('/api/contact', (req, res) => {
 });
 
 function validateApplication(application) {
-  const namePattern = /^[\p{L}][\p{L}\p{M} .'-]{1,79}$/u;
-  const locationPattern = /^[\p{L}\p{M}\p{N}][\p{L}\p{M}\p{N} .,'-]{1,99}$/u;
+  const namePattern = /^[\p{L}]+(?: [\p{L}]+)*$/u;
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const phonePattern = /^[+\d\s()\-\.]{7,20}$/;
 
   if (!namePattern.test(application.name)) return 'Enter a valid name.';
   if (!emailPattern.test(application.email)) return 'Enter a valid email address.';
-  if (!phonePattern.test(application.phone) || application.phone.replace(/\D/g, '').length < 7 || application.phone.replace(/\D/g, '').length > 15) {
-    return 'Enter a valid phone number with 7 to 15 digits.';
-  }
+  if (!/^\d{10}$/.test(application.phone)) return 'Enter a valid 10-digit phone number.';
   if (!application.program || application.program.length > 100) return 'Select a valid program.';
-  if (!locationPattern.test(application.city)) return 'Enter a valid city.';
+  if (!cityOptions.has(application.city)) return 'Select a city from the search results.';
 
   return null;
 }
@@ -171,6 +184,9 @@ app.post('/api/applications', async (req, res) => {
     const savedApplication = await saveApplication(application);
     res.status(201).json({ success: true, message: 'Application submitted successfully.', applicationId: savedApplication.id });
   } catch (error) {
+    if (error.code === '23505') {
+      return res.status(409).json({ success: false, error: 'This email has already been used.' });
+    }
     console.error('Failed to save application:', error);
     res.status(500).json({ success: false, error: 'Application could not be saved.' });
   }

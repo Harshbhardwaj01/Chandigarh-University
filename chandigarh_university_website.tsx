@@ -20,6 +20,13 @@ import {
 // If the server isn't running (like in this preview environment), it gracefully falls back to mock data.
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const CITY_OPTIONS = [
+  'Amritsar', 'Ahmedabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai',
+  'Dehradun', 'Delhi', 'Gurugram', 'Guwahati', 'Hyderabad', 'Indore', 'Jaipur', 'Jalandhar',
+  'Jammu', 'Kanpur', 'Kochi', 'Kolkata', 'Lucknow', 'Ludhiana', 'Mumbai', 'Mysuru',
+  'Nagpur', 'New Delhi', 'Noida', 'Patna', 'Pune', 'Rohtak', 'Shimla', 'Srinagar',
+  'Surat', 'Thiruvananthapuram', 'Varanasi', 'Visakhapatnam'
+];
 
 const API_CLIENT = {
   getNews: async () => {
@@ -41,16 +48,14 @@ const API_CLIENT = {
     }
   },
   submitContactForm: async (data) => {
+    let res;
     try {
-      const res = await fetch(`${API_BASE_URL}/contact`, {
+      res = await fetch(`${API_BASE_URL}/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      if (res.ok) return await res.json();
-      const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to submit');
-    } catch (err) {
+    } catch {
       console.warn("Backend not running, using mock data for Contact.");
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -62,6 +67,11 @@ const API_CLIENT = {
         }, 1000);
       });
     }
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to submit');
+    }
+    return await res.json();
   },
   submitApplication: async (data) => {
     const res = await fetch(`${API_BASE_URL}/applications`, {
@@ -904,10 +914,10 @@ function ApplicationSection() {
           </div>
           <form onSubmit={handleSubmit} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm md:p-8">
             <div className="grid gap-5 sm:grid-cols-2">
-              <label className="text-sm font-semibold text-gray-700">Full name<input required name="name" minLength={2} maxLength={80} pattern="[A-Za-z][A-Za-z .'-]{1,79}" title="Enter a valid name." value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
+              <label className="text-sm font-semibold text-gray-700">Full name<input required name="name" minLength={2} maxLength={80} pattern="[A-Za-z]+(?: [A-Za-z]+)*" title="Use alphabets only; spaces are allowed between names." value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
               <label className="text-sm font-semibold text-gray-700">Email<input required type="email" name="email" maxLength={254} value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
-              <label className="text-sm font-semibold text-gray-700">Phone<input required type="tel" name="phone" minLength={7} maxLength={20} pattern="[+0-9 ()-.]{7,20}" title="Enter a valid phone number." value={formData.phone} onChange={(event) => setFormData({ ...formData, phone: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
-              <label className="text-sm font-semibold text-gray-700">City<input required name="city" minLength={2} maxLength={100} pattern="[A-Za-z0-9][A-Za-z0-9 .,'-]{1,99}" title="Enter a valid city." value={formData.city} onChange={(event) => setFormData({ ...formData, city: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
+              <label className="text-sm font-semibold text-gray-700">Phone<input required type="tel" name="phone" minLength={10} maxLength={10} pattern="[0-9]{10}" title="Enter exactly 10 digits." value={formData.phone} onChange={(event) => setFormData({ ...formData, phone: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /></label>
+              <label className="text-sm font-semibold text-gray-700">City<input required name="city" list="city-options" autoComplete="off" pattern="(Amritsar|Ahmedabad|Bengaluru|Bhopal|Bhubaneswar|Chandigarh|Chennai|Dehradun|Delhi|Gurugram|Guwahati|Hyderabad|Indore|Jaipur|Jalandhar|Jammu|Kanpur|Kochi|Kolkata|Lucknow|Ludhiana|Mumbai|Mysuru|Nagpur|New Delhi|Noida|Patna|Pune|Rohtak|Shimla|Srinagar|Surat|Thiruvananthapuram|Varanasi|Visakhapatnam)" title="Search and select a city from the list." value={formData.city} onChange={(event) => setFormData({ ...formData, city: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-3 font-normal outline-none focus:border-red-700" /><datalist id="city-options">{CITY_OPTIONS.map((city) => <option key={city} value={city} />)}</datalist></label>
               <label className="text-sm font-semibold text-gray-700 sm:col-span-2">Program of interest<select required name="program" value={formData.program} onChange={(event) => setFormData({ ...formData, program: event.target.value })} className="mt-2 w-full rounded-md border border-gray-300 bg-white px-3 py-3 font-normal outline-none focus:border-red-700"><option value="">Select a program</option><option>Engineering</option><option>Business Management</option><option>Law</option><option>Arts & Humanities</option><option>Sciences</option><option>Allied Health Sciences</option></select></label>
             </div>
             <button disabled={status.loading} className="mt-6 w-full rounded-md bg-red-700 px-5 py-3 font-bold text-white transition-colors hover:bg-red-800 disabled:cursor-wait disabled:opacity-60">{status.loading ? 'Submitting...' : 'Submit application'}</button>
