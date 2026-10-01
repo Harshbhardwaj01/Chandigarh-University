@@ -7,13 +7,18 @@
     "dev": "vite --host 127.0.0.1",
     "backend": "node chandigarh_university_backend.js",
     "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "amplify:sandbox": "ampx sandbox",
+    "amplify:deploy": "ampx pipeline-deploy",
     "test": "node --test"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
+    "@aws-amplify/backend": "^1.25.1",
     "@tailwindcss/vite": "latest",
-    "express": "latest",
+    "@vitejs/plugin-react": "latest",
+    "aws-amplify": "^6.22.1",
     "cors": "latest",
+    "express": "latest",
     "lucide-react": "latest",
     "pg": "^8.23.0",
     "react": "latest",
@@ -22,6 +27,7 @@
     "vite": "latest"
   },
   "devDependencies": {
+    "@aws-amplify/backend-cli": "^1.10.0",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",

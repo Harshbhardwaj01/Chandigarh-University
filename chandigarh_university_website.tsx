@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Amplify } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/data';
+import type { Schema } from './amplify/data/resource';
 import {
   BookOpen,
   Users,
@@ -15,11 +18,10 @@ import {
   ChevronDown
 } from 'lucide-react';
 
-// --- Full-Stack API Integration ---
-// This client attempts to fetch from the local Node.js server.
-// If the server isn't running (like in this preview environment), it gracefully falls back to mock data.
+const amplifyOutputs = import.meta.glob('./amplify_outputs.json', { eager: true, import: 'default' })['./amplify_outputs.json'];
+if (amplifyOutputs) Amplify.configure(amplifyOutputs);
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const dataClient = generateClient<Schema>();
 const CITY_OPTIONS = [
   'Amritsar', 'Ahmedabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai',
   'Dehradun', 'Delhi', 'Gurugram', 'Guwahati', 'Hyderabad', 'Indore', 'Jaipur', 'Jalandhar',
@@ -31,78 +33,59 @@ const CITY_OPTIONS = [
 const API_CLIENT = {
   getNews: async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/news`);
-      if (res.ok) return await res.json();
-      throw new Error('Backend unavailable');
+      const { data, errors } = await dataClient.models.News.list();
+      if (errors?.length) throw new Error(errors[0].message);
+      if (data.length) return data;
     } catch (err) {
-      console.warn("Backend not running, using mock data for News.");
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve([
-            { id: 1, title: 'CU ranks among top 50 in NIRF Rankings 2026', date: 'Sept 10, 2026', category: 'Accolades' },
-            { id: 2, title: 'International Tech Symposium announced for October', date: 'Sept 08, 2026', category: 'Events' },
-            { id: 3, title: 'Placement drive: 500+ top companies visiting campus', date: 'Sept 05, 2026', category: 'Placements' },
-          ]);
-        }, 800);
-      });
+      console.warn('Amplify news data is unavailable; showing sample news.', err);
     }
+    return [
+      { id: '1', title: 'CU ranks among top 50 in NIRF Rankings 2026', date: 'Sept 10, 2026', category: 'Accolades' },
+      { id: '2', title: 'International Tech Symposium announced for October', date: 'Sept 08, 2026', category: 'Events' },
+      { id: '3', title: 'Placement drive: 500+ top companies visiting campus', date: 'Sept 05, 2026', category: 'Placements' },
+    ];
   },
   submitContactForm: async (data) => {
-    let res;
-    try {
-      res = await fetch(`${API_BASE_URL}/contact`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-    } catch {
-      console.warn("Backend not running, using mock data for Contact.");
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          if (!data.name || !data.email) {
-            reject(new Error("Name and Email are required."));
-          } else {
-            resolve({ success: true, message: 'Message received successfully!' });
-          }
-        }, 1000); 
-      });
-    }
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to submit');
-    }
-    return await res.json();
+    const { errors } = await dataClient.models.ContactMessage.create({
+      ...data,
+      createdAt: new Date().toISOString(),
+    });
+    if (errors?.length) throw new Error(errors[0].message || 'Failed to submit');
+    return { success: true, message: 'Message received successfully!' };
   },
   submitApplication: async (data) => {
-    const res = await fetch(`${API_BASE_URL}/applications`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    const response = await res.json();
-    if (!res.ok) throw new Error(response.error || 'Failed to submit application');
-    return response;
+    const normalizedData = {
+      ...data,
+      name: data.name.trim().replace(/\s+/g, ' '),
+      email: data.email.trim().toLowerCase(),
+      phone: data.phone.trim(),
+      program: data.program.trim(),
+      city: data.city.trim(),
+      submittedAt: new Date().toISOString(),
+    };
+    const { errors } = await dataClient.models.Application.create(normalizedData);
+    if (errors?.length) {
+      const duplicateEmail = errors.some((error) => /conditional|already exists/i.test(error.message));
+      throw new Error(duplicateEmail ? 'This email has already been used.' : errors[0].message || 'Failed to submit application');
+    }
+    return { success: true };
   },
   getPrograms: async () => {
-     try {
-       const res = await fetch(`${API_BASE_URL}/programs`);
-       if (res.ok) return await res.json();
-       throw new Error('Backend unavailable');
-     } catch (err) {
-       console.warn("Backend not running, using mock data for Programs.");
-       return new Promise((resolve) => {
-           setTimeout(() => {
-               resolve([
-                   { id: 'eng', name: 'Engineering', icon: '💻', count: '30+ Programs' },
-                   { id: 'biz', name: 'Business Management', icon: '📊', count: '15+ Programs' },
-                   { id: 'law', name: 'Law', icon: '⚖️', count: '5 Programs' },
-                   { id: 'art', name: 'Arts & Humanities', icon: '🎨', count: '20+ Programs' },
-                   { id: 'sci', name: 'Sciences', icon: '🔬', count: '25+ Programs' },
-                   { id: 'med', name: 'Allied Health Sciences', icon: '⚕️', count: '10+ Programs' }
-               ]);
-           }, 500);
-       });
-     }
+    try {
+      const { data, errors } = await dataClient.models.Program.list();
+      if (errors?.length) throw new Error(errors[0].message);
+      if (data.length) return data;
+    } catch (err) {
+      console.warn('Amplify program data is unavailable; showing sample programs.', err);
+    }
+    return [
+      { id: 'eng', name: 'Engineering', icon: '💻', count: '30+ Programs' },
+      { id: 'biz', name: 'Business Management', icon: '📊', count: '15+ Programs' },
+      { id: 'law', name: 'Law', icon: '⚖️', count: '5 Programs' },
+      { id: 'art', name: 'Arts & Humanities', icon: '🎨', count: '20+ Programs' },
+      { id: 'sci', name: 'Sciences', icon: '🔬', count: '25+ Programs' },
+      { id: 'med', name: 'Allied Health Sciences', icon: '⚕️', count: '10+ Programs' },
+    ];
   }
 };
 

@@ -4,3 +4,5 @@ dist/
 .env.*
 !.env.example
 data/applications.json
+amplify_outputs.json
+.amplify/
