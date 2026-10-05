@@ -25,7 +25,7 @@ if (hasGraphQLConfig) {
   Amplify.configure(amplifyOutputs);
 }
 
-const dataClient = hasGraphQLConfig ? (generateClient<Schema>() as any) : null;
+const dataClient = hasGraphQLConfig ? generateClient<Schema>() : null;
 const CITY_OPTIONS = [
   'Amritsar', 'Ahmedabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai',
   'Dehradun', 'Delhi', 'Gurugram', 'Guwahati', 'Hyderabad', 'Indore', 'Jaipur', 'Jalandhar',
