@@ -27,7 +27,7 @@ if (hasGraphQLConfig) {
 
 const dataClient = hasGraphQLConfig ? generateClient<Schema>() : null;
 const CITY_OPTIONS = [
-  'Amritsar', 'Ahmedabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai',
+  'Agartala', 'Ahmedabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai',
   'Dehradun', 'Delhi', 'Gurugram', 'Guwahati', 'Hyderabad', 'Indore', 'Jaipur', 'Jalandhar',
   'Jammu', 'Kanpur', 'Kochi', 'Kolkata', 'Lucknow', 'Ludhiana', 'Mumbai', 'Mysuru',
   'Nagpur', 'New Delhi', 'Noida', 'Patna', 'Pune', 'Rohtak', 'Shimla', 'Srinagar',
