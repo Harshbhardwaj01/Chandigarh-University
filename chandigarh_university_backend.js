@@ -11,7 +11,9 @@ import { fileURLToPath } from 'node:url';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const DATABASE_PATH = process.env.APPLICATIONS_DB_PATH || path.join(path.dirname(fileURLToPath(import.meta.url)), 'data', 'applications.json');
+const ROOT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const DATABASE_PATH = process.env.APPLICATIONS_DB_PATH || path.join(ROOT_DIR, 'data', 'applications.json');
+const DIST_PATH = path.join(ROOT_DIR, 'dist');
 const { Pool } = pg;
 const databasePool = process.env.DATABASE_URL
   ? new Pool({ connectionString: process.env.DATABASE_URL })
@@ -19,6 +21,7 @@ const databasePool = process.env.DATABASE_URL
 const databaseReady = databasePool
   ? databasePool.query('CREATE UNIQUE INDEX IF NOT EXISTS applications_email_unique_idx ON applications (LOWER(email))')
   : Promise.resolve();
+const distExists = await fs.access(DIST_PATH).then(() => true).catch(() => false);
 const cityOptions = new Set([
   'Amritsar', 'Ahmedabad', 'Bengaluru', 'Bhopal', 'Bhubaneswar', 'Chandigarh', 'Chennai',
   'Dehradun', 'Delhi', 'Gurugram', 'Guwahati', 'Hyderabad', 'Indore', 'Jaipur', 'Jalandhar',
@@ -122,6 +125,17 @@ app.get('/api/programs', (req, res) => {
     res.json(programsData);
   }, 300);
 });
+
+if (distExists) {
+  app.use(express.static(DIST_PATH));
+
+  app.get(/^(?!\/api).*/, (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(DIST_PATH, 'index.html'));
+  });
+}
 
 // POST /api/contact - Submit contact form
 app.post('/api/contact', (req, res) => {

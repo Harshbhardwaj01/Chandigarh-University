@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+  cu-app:
+    build:
+      context: .
+    container_name: chandigarh-university-app
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      NODE_ENV: production

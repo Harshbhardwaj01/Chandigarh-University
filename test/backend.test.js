@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, mkdir, writeFile } from 'node:fs/promises';
 import { once } from 'node:events';
 import { spawn } from 'node:child_process'; 
 import os from 'node:os';
@@ -79,5 +79,44 @@ test('backend stores an admission application', async () => {
     server.kill();
     await once(server, 'exit').catch(() => {});
     await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('backend serves built app from dist when present', async () => {
+  const projectRoot = process.cwd();
+  const distPath = path.join(projectRoot, 'dist');
+  const appBaseUrl = `http://127.0.0.1:${port + 2}`;
+
+  await mkdir(distPath, { recursive: true });
+  await writeFile(path.join(distPath, 'index.html'), '<html><body>CU container app</body></html>');
+
+  const server = spawn(process.execPath, ['chandigarh_university_backend.js'], {
+    cwd: projectRoot,
+    env: { ...process.env, PORT: String(port + 2) },
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+
+  try {
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Backend did not start in time')), 5000);
+      server.stdout.on('data', (chunk) => {
+        if (chunk.toString().includes('Server running on port')) {
+          clearTimeout(timeout);
+          resolve();
+        }
+      });
+      server.once('error', reject);
+      server.once('exit', (code) => reject(new Error(`Backend exited with code ${code}`)));
+    });
+
+    const response = await fetch(`${appBaseUrl}/`);
+    const html = await response.text();
+
+    assert.equal(response.status, 200);
+    assert.match(html, /CU container app/);
+  } finally {
+    server.kill();
+    await once(server, 'exit').catch(() => {});
+    await rm(distPath, { recursive: true, force: true });
   }
 });
