@@ -20,11 +20,11 @@ jobs:
           repository: Harshbhardwaj01/Chandigarh-University
           ref: main
 
-      # Equivalent to tools { nodejs 'Node20' }
-      - name: Setup Node.js 20
+      # Equivalent to tools { nodejs 'Node26' }
+      - name: Setup Node.js 26
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '26'
 
       # Equivalent to stage('Install Dependencies')
       - name: Install Dependencies
