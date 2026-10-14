@@ -38,5 +38,13 @@
     "@types/react-dom": "latest",
     "esbuild": "^0.28.2",
     "typescript": "latest"
+  },
+  "allowScripts": {
+    "@aws-amplify/hosting@1.0.1": true,
+    "@parcel/watcher@2.6.0": true,
+    "core-js@2.6.12": true,
+    "core-js@3.50.0": true,
+    "esbuild@0.28.2": true,
+    "esbuild@0.25.12": true
   }
 }

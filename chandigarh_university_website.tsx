@@ -15,7 +15,11 @@ import {
   MapPin,
   Calendar,
   Newspaper,
-  ChevronDown
+  ChevronDown,
+  Scale,
+  Palette,
+  FlaskConical,
+  HeartPulse
 } from 'lucide-react';
 
 const amplifyOutputs = import.meta.glob('./amplify_outputs.json', { eager: true, import: 'default' })['./amplify_outputs.json'];
@@ -202,12 +206,29 @@ export default function App() {
             onVirtualTour={() => setActiveTab('virtual-tour')}
             onEngineeringPrograms={() => setActiveTab('engineering')}
             onBusinessPrograms={() => setActiveTab('business')}
+            onLawPrograms={() => setActiveTab('law')}
+            onArtsPrograms={() => setActiveTab('arts-humanities')}
+            onSciencesPrograms={() => setActiveTab('sciences')}
+            onAlliedHealthPrograms={() => setActiveTab('allied-health')}
           />
         )}
         {activeTab === 'about' && <AboutSection />}
-        {activeTab === 'programs' && <ProgramsSection onEngineeringPrograms={() => setActiveTab('engineering')} onBusinessPrograms={() => setActiveTab('business')} />}
+        {activeTab === 'programs' && (
+          <ProgramsSection
+            onEngineeringPrograms={() => setActiveTab('engineering')}
+            onBusinessPrograms={() => setActiveTab('business')}
+            onLawPrograms={() => setActiveTab('law')}
+            onArtsPrograms={() => setActiveTab('arts-humanities')}
+            onSciencesPrograms={() => setActiveTab('sciences')}
+            onAlliedHealthPrograms={() => setActiveTab('allied-health')}
+          />
+        )}
         {activeTab === 'engineering' && <EngineeringProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
         {activeTab === 'business' && <BusinessProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
+        {activeTab === 'law' && <LawProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
+        {activeTab === 'arts-humanities' && <ArtsAndHumanitiesProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
+        {activeTab === 'sciences' && <SciencesProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
+        {activeTab === 'allied-health' && <AlliedHealthProgramsSection onBackToPrograms={() => setActiveTab('programs')} />}
         {activeTab === 'virtual-tour' && <VirtualTourSection onBackHome={() => setActiveTab('home')} />}
         {activeTab === 'contact' && <ContactSection />}
           {activeTab === 'admissions' && <ApplicationSection />}
@@ -275,7 +296,7 @@ export default function App() {
   );
 }
 
-function HomeSection({ onExplorePrograms, onVirtualTour, onEngineeringPrograms, onBusinessPrograms }) {
+function HomeSection({ onExplorePrograms, onVirtualTour, onEngineeringPrograms, onBusinessPrograms, onLawPrograms, onArtsPrograms, onSciencesPrograms, onAlliedHealthPrograms }) {
   const [news, setNews] = useState([]);
   const [loadingNews, setLoadingNews] = useState(true);
 
@@ -356,7 +377,21 @@ function HomeSection({ onExplorePrograms, onVirtualTour, onEngineeringPrograms, 
             ].map((program) => (
               <button
                 key={program.name}
-                onClick={program.name === 'Engineering' ? onEngineeringPrograms : program.name === 'Business Management' ? onBusinessPrograms : onExplorePrograms}
+                onClick={
+                  program.name === 'Engineering'
+                    ? onEngineeringPrograms
+                    : program.name === 'Business Management'
+                      ? onBusinessPrograms
+                      : program.name === 'Law'
+                        ? onLawPrograms
+                        : program.name === 'Arts & Humanities'
+                          ? onArtsPrograms
+                          : program.name === 'Sciences'
+                            ? onSciencesPrograms
+                            : program.name === 'Allied Health Sciences'
+                              ? onAlliedHealthPrograms
+                              : onExplorePrograms
+                }
                 className="group text-left border border-gray-200 rounded-lg p-5 hover:border-red-700 hover:shadow-lg transition-all duration-300 bg-gray-50 hover:bg-white"
               >
                 <div className="flex items-start justify-between gap-4">
@@ -688,7 +723,7 @@ function BusinessProgramsSection({ onBackToPrograms }) {
   );
 }
 
-function ProgramsSection({ onEngineeringPrograms, onBusinessPrograms }) {
+function ProgramsSection({ onEngineeringPrograms, onBusinessPrograms, onLawPrograms, onArtsPrograms, onSciencesPrograms, onAlliedHealthPrograms }) {
     const [programs, setPrograms] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -720,7 +755,21 @@ function ProgramsSection({ onEngineeringPrograms, onBusinessPrograms }) {
                                     <div className="text-4xl mb-4">{prog.icon}</div>
                                     <h3 className="text-xl font-bold text-gray-800 mb-2">{prog.name}</h3>
                                     <p className="text-sm text-gray-500 mb-4 font-medium">{prog.count}</p>
-                                    <button onClick={prog.id === 'eng' ? onEngineeringPrograms : prog.id === 'biz' ? onBusinessPrograms : undefined} className="flex items-center text-red-700 font-semibold text-sm group-hover:gap-2 transition-all">
+                                    <button onClick={
+                                        prog.id === 'eng'
+                                            ? onEngineeringPrograms
+                                            : prog.id === 'biz'
+                                                ? onBusinessPrograms
+                                                : prog.id === 'law'
+                                                    ? onLawPrograms
+                                                    : prog.id === 'art'
+                                                        ? onArtsPrograms
+                                                        : prog.id === 'sci'
+                                                            ? onSciencesPrograms
+                                                            : prog.id === 'med'
+                                                                ? onAlliedHealthPrograms
+                                                                : undefined
+                                    } className="flex items-center text-red-700 font-semibold text-sm group-hover:gap-2 transition-all">
                                         Explore Details <ChevronRight size={16} />
                                     </button>
                                 </div>
@@ -730,13 +779,202 @@ function ProgramsSection({ onEngineeringPrograms, onBusinessPrograms }) {
                 )}
                 
                 <div className="mt-12 text-center w-full">
-                    <button className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-md font-medium transition-colors inline-flex items-center gap-2">
+                    <a
+                        href="https://drive.google.com/file/d/1o9496X9rbbFa7D73Rb7kgQ1fOTsbA5TA/view?usp=sharing"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-md font-medium transition-colors inline-flex items-center gap-2"
+                    >
                         Download Complete Brochure <ChevronDown size={18} />
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
     );
+}
+
+function LawProgramsSection({ onBackToPrograms }) {
+  const programs = [
+    { title: 'B.A. LL.B. (Hons.)', level: 'Undergraduate', duration: '5 years', focus: 'Law, governance, and advocacy' },
+    { title: 'B.Com. LL.B. (Hons.)', level: 'Undergraduate', duration: '5 years', focus: 'Corporate law and commerce practice' },
+    { title: 'LL.M.', level: 'Postgraduate', duration: '1 year', focus: 'Specialized legal research and practice' },
+    { title: 'Ph.D. Law', level: 'Doctoral', duration: '3-5 years', focus: 'Legal scholarship and policy studies' },
+  ];
+
+  return (
+    <div className="w-full bg-gray-50 flex-grow">
+      <section className="bg-amber-800 text-white py-14 md:py-20">
+        <div className="container mx-auto px-4 w-full">
+          <button onClick={onBackToPrograms} className="inline-flex items-center gap-2 text-amber-100 hover:text-white font-semibold mb-8 transition-colors">
+            <ChevronRight size={18} className="rotate-180" /> All academic programs
+          </button>
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-yellow-300 mb-3">School of Law</p>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-5">Advocate the future.</h1>
+            <p className="text-lg md:text-xl text-amber-100 leading-relaxed">Learn legal reasoning, public policy, and professional ethics to lead with clarity in a changing legal landscape.</p>
+          </div>
+        </div>
+      </section>
+      <section className="py-14 md:py-16">
+        <div className="container mx-auto px-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {programs.map((program) => (
+              <article key={program.title} className="bg-white border border-gray-200 rounded-lg p-6 hover:border-amber-700 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="w-11 h-11 rounded-lg bg-amber-50 text-amber-800 flex items-center justify-center"><Scale size={22} /></div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{program.level}</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-3">{program.title}</h3>
+                <p className="text-gray-600 text-sm mb-5">{program.focus}</p>
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm">
+                  <span className="text-gray-500">Duration</span>
+                  <span className="font-bold text-gray-900">{program.duration}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ArtsAndHumanitiesProgramsSection({ onBackToPrograms }) {
+  const programs = [
+    { title: 'B.A. English', level: 'Undergraduate', duration: '3 years', focus: 'Literature, media, and communication' },
+    { title: 'B.A. Psychology', level: 'Undergraduate', duration: '3 years', focus: 'Human behavior and social understanding' },
+    { title: 'B.A. Journalism & Mass Communication', level: 'Undergraduate', duration: '3 years', focus: 'Storytelling, media, and public discourse' },
+    { title: 'M.A. Political Science', level: 'Postgraduate', duration: '2 years', focus: 'Public policy, governance, and society' },
+  ];
+
+  return (
+    <div className="w-full bg-gray-50 flex-grow">
+      <section className="bg-violet-800 text-white py-14 md:py-20">
+        <div className="container mx-auto px-4 w-full">
+          <button onClick={onBackToPrograms} className="inline-flex items-center gap-2 text-violet-100 hover:text-white font-semibold mb-8 transition-colors">
+            <ChevronRight size={18} className="rotate-180" /> All academic programs
+          </button>
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-yellow-300 mb-3">School of Arts & Humanities</p>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-5">Shape ideas.</h1>
+            <p className="text-lg md:text-xl text-violet-100 leading-relaxed">Explore how culture, language, society, and creativity inform leadership, innovation, and public life.</p>
+          </div>
+        </div>
+      </section>
+      <section className="py-14 md:py-16">
+        <div className="container mx-auto px-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {programs.map((program) => (
+              <article key={program.title} className="bg-white border border-gray-200 rounded-lg p-6 hover:border-violet-700 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="w-11 h-11 rounded-lg bg-violet-50 text-violet-800 flex items-center justify-center"><Palette size={22} /></div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{program.level}</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-3">{program.title}</h3>
+                <p className="text-gray-600 text-sm mb-5">{program.focus}</p>
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm">
+                  <span className="text-gray-500">Duration</span>
+                  <span className="font-bold text-gray-900">{program.duration}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SciencesProgramsSection({ onBackToPrograms }) {
+  const programs = [
+    { title: 'B.Sc. Physics', level: 'Undergraduate', duration: '3 years', focus: 'Research, measurement, and applied theory' },
+    { title: 'B.Sc. Chemistry', level: 'Undergraduate', duration: '3 years', focus: 'Material and chemical innovation' },
+    { title: 'B.Sc. Biotechnology', level: 'Undergraduate', duration: '3 years', focus: 'Life sciences, lab practice, and biotech solutions' },
+    { title: 'M.Sc. Data Science', level: 'Postgraduate', duration: '2 years', focus: 'Applied analytics, AI, and decision science' },
+  ];
+
+  return (
+    <div className="w-full bg-gray-50 flex-grow">
+      <section className="bg-emerald-800 text-white py-14 md:py-20">
+        <div className="container mx-auto px-4 w-full">
+          <button onClick={onBackToPrograms} className="inline-flex items-center gap-2 text-emerald-100 hover:text-white font-semibold mb-8 transition-colors">
+            <ChevronRight size={18} className="rotate-180" /> All academic programs
+          </button>
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-yellow-300 mb-3">School of Sciences</p>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-5">Discover the science of tomorrow.</h1>
+            <p className="text-lg md:text-xl text-emerald-100 leading-relaxed">Build strong scientific reasoning, practical experimentation, and interdisciplinary problem-solving abilities.</p>
+          </div>
+        </div>
+      </section>
+      <section className="py-14 md:py-16">
+        <div className="container mx-auto px-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {programs.map((program) => (
+              <article key={program.title} className="bg-white border border-gray-200 rounded-lg p-6 hover:border-emerald-700 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="w-11 h-11 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center"><FlaskConical size={22} /></div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{program.level}</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-3">{program.title}</h3>
+                <p className="text-gray-600 text-sm mb-5">{program.focus}</p>
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm">
+                  <span className="text-gray-500">Duration</span>
+                  <span className="font-bold text-gray-900">{program.duration}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function AlliedHealthProgramsSection({ onBackToPrograms }) {
+  const programs = [
+    { title: 'B.Sc. Nursing', level: 'Undergraduate', duration: '4 years', focus: 'Clinical practice and patient-centered care' },
+    { title: 'BPT - Physiotherapy', level: 'Undergraduate', duration: '4 years', focus: 'Mobility, rehabilitation, and recovery care' },
+    { title: 'BMLT - Medical Lab Technology', level: 'Undergraduate', duration: '3 years', focus: 'Diagnostics and laboratory sciences' },
+    { title: 'M.Sc. Nutrition & Dietetics', level: 'Postgraduate', duration: '2 years', focus: 'Clinical nutrition and public health' },
+  ];
+
+  return (
+    <div className="w-full bg-gray-50 flex-grow">
+      <section className="bg-cyan-800 text-white py-14 md:py-20">
+        <div className="container mx-auto px-4 w-full">
+          <button onClick={onBackToPrograms} className="inline-flex items-center gap-2 text-cyan-100 hover:text-white font-semibold mb-8 transition-colors">
+            <ChevronRight size={18} className="rotate-180" /> All academic programs
+          </button>
+          <div className="max-w-3xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-yellow-300 mb-3">School of Allied Health Sciences</p>
+            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-5">Care for communities.</h1>
+            <p className="text-lg md:text-xl text-cyan-100 leading-relaxed">Prepare for patient-facing, diagnostics, and health-support careers that make a measurable difference every day.</p>
+          </div>
+        </div>
+      </section>
+      <section className="py-14 md:py-16">
+        <div className="container mx-auto px-4 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {programs.map((program) => (
+              <article key={program.title} className="bg-white border border-gray-200 rounded-lg p-6 hover:border-cyan-700 hover:shadow-lg transition-all">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="w-11 h-11 rounded-lg bg-cyan-50 text-cyan-800 flex items-center justify-center"><HeartPulse size={22} /></div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-500">{program.level}</span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 leading-tight mb-3">{program.title}</h3>
+                <p className="text-gray-600 text-sm mb-5">{program.focus}</p>
+                <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm">
+                  <span className="text-gray-500">Duration</span>
+                  <span className="font-bold text-gray-900">{program.duration}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }
 
 function ContactSection() {
