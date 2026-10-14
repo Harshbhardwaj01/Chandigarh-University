@@ -726,6 +726,7 @@ function BusinessProgramsSection({ onBackToPrograms }) {
 function ProgramsSection({ onEngineeringPrograms, onBusinessPrograms, onLawPrograms, onArtsPrograms, onSciencesPrograms, onAlliedHealthPrograms }) {
     const [programs, setPrograms] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showPDF, setShowPDF] = useState(false);
 
     useEffect(() => {
         API_CLIENT.getPrograms().then(data => {
@@ -779,14 +780,25 @@ function ProgramsSection({ onEngineeringPrograms, onBusinessPrograms, onLawProgr
                 )}
                 
                 <div className="mt-12 text-center w-full">
-                    <a
-                        href="https://drive.google.com/file/d/1o9496X9rbbFa7D73Rb7kgQ1fOTsbA5TA/view?usp=sharing"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
+                        onClick={() => setShowPDF(!showPDF)}
                         className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 rounded-md font-medium transition-colors inline-flex items-center gap-2"
                     >
-                        Download Complete Brochure <ChevronDown size={18} />
-                    </a>
+                        {showPDF ? "Hide Brochure" : "View Complete Brochure"}
+                        <ChevronDown size={18} />
+                    </button>
+
+                    {showPDF && (
+                        <div className="mt-6 w-full">
+                            <iframe
+                                src="https://drive.google.com/file/d/1o9496X9rbbFa7D73Rb7kgQ1fOTsbA5TA/preview"
+                                width="100%"
+                                height="700px"
+                                className="rounded-lg border border-gray-300"
+                                title="Complete Brochure"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
