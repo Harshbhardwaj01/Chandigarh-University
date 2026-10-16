@@ -1,50 +1,19 @@
 {
-  "name": "chandigarh-university-site",
+  "name": "chandigarh-university",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 5000",
-    "backend": "node chandigarh_university_backend.js",
-    "start": "node chandigarh_university_backend.js",
-    "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0 --port 4173",
-    "typecheck": "tsc --noEmit",
-    "amplify:sandbox": "ampx sandbox",
-    "amplify:deploy": "ampx pipeline-deploy",
-    "test": "node --test"
-  },
-  "dependencies": {
-    "@aws-amplify/backend": "^1.25.1",
-    "@tailwindcss/vite": "latest",
-    "@vitejs/plugin-react": "latest",
-    "aws-cdk-lib": "^2.257.0",
-    "aws-amplify": "^6.22.1",
-    "cors": "latest",
-    "express": "latest",
-    "lucide-react": "latest",
-    "pg": "^8.23.0",
-    "react": "latest",
-    "react-dom": "latest",
-    "tailwindcss": "latest",
-    "vite": "latest",
-    "constructs": "^10.6.0",
-    "zod": "3.25.17"
-  },
-  "devDependencies": {
-    "@aws-amplify/backend-cli": "^1.10.0",
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "esbuild": "^0.28.2",
-    "typescript": "latest"
-  },
-  "allowScripts": {
-    "@aws-amplify/hosting@1.0.1": true,
-    "@parcel/watcher@2.6.0": true,
-    "core-js@2.6.12": true,
-    "core-js@3.50.0": true,
-    "esbuild@0.28.2": true,
-    "esbuild@0.25.12": true
+    "dev": "npm run dev --workspace frontend",
+    "backend": "npm run start --workspace backend",
+    "start": "npm run start --workspace backend",
+    "build": "npm run build --workspace frontend",
+    "preview": "npm run preview --workspace frontend",
+    "typecheck": "npm run typecheck --workspace frontend",
+    "test": "npm run test --workspace backend"
   }
 }

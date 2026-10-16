@@ -1,0 +1,14 @@
+{
+  "name": "@chandigarh-university/backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "cors": "latest",
+    "express": "latest",
+    "pg": "^8.23.0"
+  }
+}

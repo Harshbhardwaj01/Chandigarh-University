@@ -1,8 +1,8 @@
 node_modules/
+**/node_modules/
 dist/
+**/dist/
 .env
 .env.*
 !.env.example
 data/applications.json
-amplify_outputs.json
-.amplify/

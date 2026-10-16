@@ -1,83 +1,50 @@
-# Chandigarh University Website
+# Chandigarh University
 
-A React and Vite website for Chandigarh University with an AWS Amplify Gen 2 backend. Amplify provides Cognito guest identity, an AppSync GraphQL API, and DynamoDB-backed data models.
+React + Vite frontend, Express API, and PostgreSQL database.
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 20 or newer
 - npm
+- Docker Desktop for the full local stack
 
-## Setup
+## Install and Run
 
-```bash
-npm install
+Install the npm workspaces from the repository root:
+
+```sh
+npm ci
 ```
 
-## Run Locally
+Run the Vite frontend and API in separate terminals with `npm run dev` and `npm run backend`. Without PostgreSQL environment variables, the backend uses the JSON file fallback for local development and tests.
 
-Start an Amplify sandbox (requires AWS credentials configured locally):
+For the full PostgreSQL-backed stack, copy `.env.example` to `.env`, set a unique `POSTGRES_PASSWORD`, then run:
 
-```bash
-npm run amplify:sandbox
+```sh
+docker compose up --build
 ```
 
-In another terminal, start the frontend:
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:5000](http://localhost:5000).
-
-The sandbox generates `amplify_outputs.json`, which the frontend loads automatically. The Express backend remains available through `npm run backend` for its existing local smoke tests, but Amplify-hosted frontend requests use Amplify Data.
+Open the frontend at [http://localhost:5000](http://localhost:5000). The API is also exposed at `http://localhost:5001/api`. PostgreSQL data persists in the `postgres_data` volume.
 
 ## Scripts
 
-- `npm run dev` - Start the Vite development server.
-- `npm run backend` - Start the legacy local Express API.
-- `npm run build` - Create a production frontend build.
-- `npm run typecheck` - Check frontend and Amplify TypeScript.
-- `npm run amplify:sandbox` - Provision a personal Amplify Gen 2 development backend.
-- `npm test` - Run the backend smoke test.
+- `npm run dev` - Start the frontend.
+- `npm run backend` - Start the Express API.
+- `npm run build` - Build the frontend.
+- `npm run typecheck` - Check frontend TypeScript.
+- `npm test` - Run backend tests.
 
-## Deploy to Amplify Hosting
+## Structure
 
-1. Push this repository to a supported Git provider.
-2. In the AWS Amplify console, choose **Create new app**, connect the repository, and select the deployment branch. Amplify detects `amplify.yml`.
-3. Allow Amplify to deploy backend resources. The build invokes `ampx pipeline-deploy` with the Amplify-provided `AWS_APP_ID` and `AWS_BRANCH` values.
-4. Deploy. Amplify provisions Cognito, AppSync, and DynamoDB, then publishes the Vite `dist` output.
-5. Add records to the `News` and `Program` models in the Amplify Data manager. Sample content is shown until those records are available.
+- `frontend/` - Vite app, UI source, API client, Nginx config, and frontend container.
+- `backend/` - Express app, route/controller/service/repository layers, tests, and API container.
+- `database/` - PostgreSQL schema, migration guidance, and seed guidance.
+- `infrastructure/` - Docker notes, deployment and backup scripts, and EC2 guidance.
+- `docs/` - Architecture, deployment, and database documentation.
+- `compose.yaml` - Local frontend, API, and PostgreSQL stack.
 
-The `Application` model uses normalized email as its DynamoDB key to reject duplicate applications. Anonymous visitors can create application and contact records but cannot list or read submissions. Before production launch, review the generated authorization policies and configure a custom domain, retention, monitoring, and suitable anti-abuse controls in AWS.
+## CI and EC2
 
-## Jenkins CI
+GitHub CI runs from `.github/workflows/ci.yml`. The manual EC2 deployment workflow is `.github/workflows/deploy.yml`; configure its documented repository secrets and prepare the EC2 checkout and `.env` first. Jenkins automation remains available in `Jenkinsfile`.
 
-The repository includes a `Jenkinsfile` for Pipeline-as-Code. The pipeline installs dependencies with `npm ci`, runs the TypeScript check, builds the Vite application, and archives the `dist` directory.
-
-To configure Jenkins:
-
-1. Install Jenkins with Node.js and Git support on the agent.
-2. Create a new **Pipeline** job.
-3. Under **Pipeline**, choose **Pipeline script from SCM**.
-4. Select **Git** and use `https://github.com/Harshbhardwaj01/Chandigarh-University.git`.
-5. Set the branch to `*/main` and the script path to `Jenkinsfile`.
-6. Enable **GitHub hook trigger for GITScm polling**.
-7. Add a GitHub webhook pointing to `https://YOUR-JENKINS-HOST/github-webhook/` using `application/json`.
-
-Each push to `main` will then run the validation and build pipeline. Jenkins credentials should be stored in Jenkins Credentials Manager rather than committed to this repository.
-
-## Amplify Data Models
-
-- `News` and `Program` - Publicly readable website content.
-- `ContactMessage` - Public create-only contact submissions.
-- `Application` - Public create-only admissions submissions, keyed by email.
-
-## Project Structure
-
-- `main.tsx` - React application entry point.
-- `chandigarh_university_website.tsx` - Main website UI and API client.
-- `amplify/` - Amplify Gen 2 auth, data, and backend resources.
-- `amplify.yml` - Amplify Hosting backend and frontend build configuration.
-- `chandigarh_university_backend.js` - Legacy local Express backend for smoke tests.
-- `vite.config.js` - Vite and API proxy configuration.
-- `styles.css` - Global styles and Tailwind CSS entry point.
+See [docs/deployment.md](docs/deployment.md), [docs/database.md](docs/database.md), and [docs/architecture.md](docs/architecture.md) for operational details.

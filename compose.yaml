@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: chandigarh-university-db
+    environment:
+      POSTGRES_DB: university_applications
+      POSTGRES_USER: cu_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cu_app_local_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cu_app -d university_applications"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: chandigarh-university-api:latest
+    container_name: chandigarh-university-api
+    ports:
+      - "${BACKEND_PORT:-5001}:5001"
+    environment:
+      PORT: 5001
+      NODE_ENV: production
+      PGHOST: postgres
+      PGPORT: 5432
+      PGDATABASE: university_applications
+      PGUSER: cu_app
+      PGPASSWORD: ${POSTGRES_PASSWORD:-cu_app_local_password}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5001/api').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: chandigarh-university:latest
+    container_name: chandigarh-university-web
+    ports:
+      - "${FRONTEND_PORT:-5000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
