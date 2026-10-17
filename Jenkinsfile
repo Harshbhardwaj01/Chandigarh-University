@@ -10,10 +10,7 @@ pipeline {
         nodejs 'Node20'
     }
 
-    options {
-        timestamps()
-        disableConcurrentBuilds()
-    }
+    
 
     environment {
         // Reuse the existing Docker Compose project and its database volume.
