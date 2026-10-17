@@ -91,7 +91,7 @@ pipeline {
                     for ($i = 0; $i -lt 12; $i++) {
                         try {
                             $response = Invoke-WebRequest `
-                                -Uri "http://localhost:5000" `
+                                -Uri "http://localhost:80" `
                                 -UseBasicParsing `
                                 -TimeoutSec 5
 
@@ -105,7 +105,7 @@ pipeline {
                     }
 
                     if (-not $ready) {
-                        throw "Frontend health check failed at http://localhost:5000"
+                        throw "Frontend health check failed at http://localhost:80"
                     }
 
                     Write-Host "Frontend health check passed."
