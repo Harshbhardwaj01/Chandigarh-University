@@ -1,4 +1,5 @@
-pipeline { 
+
+pipeline {
     agent any
 
     triggers {
@@ -9,12 +10,21 @@ pipeline {
         nodejs 'Node20'
     }
 
-    
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        // Reuse the existing Docker Compose project and its database volume.
+        COMPOSE_PROJECT_NAME = 'chandigarhuniversity'
+    }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/Harshbhardwaj01/Chandigarh-University.git'
+                git branch: 'main',
+                    url: 'https://github.com/Harshbhardwaj01/Chandigarh-University.git'
             }
         }
 
@@ -26,16 +36,16 @@ pipeline {
 
         stage('Run Build') {
             steps {
-                bat 'npm run build '
+                bat 'npm run build'
             }
         }
 
         stage('Run Tests') {
             steps {
-                bat 'npm test '
+                bat 'npm test'
             }
         }
-        
+
         stage('Verify Docker Access') {
             steps {
                 bat 'docker --version'
@@ -45,17 +55,21 @@ pipeline {
             }
         }
 
-
         stage('Docker Login') {
             steps {
-                // ✅ Fetch the credentials only when this specific stage runs
-               withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', passwordVariable: 'DOCKER_PSW', usernameVariable: 'DOCKER_USR')]) {
-    // Notice there is NO space between %DOCKER_PSW% and the | symbol
-    bat 'echo %DOCKER_PSW%| docker login -u %DOCKER_USR% --password-stdin'
-}
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USR',
+                        passwordVariable: 'DOCKER_PSW'
+                    )
+                ]) {
+                    bat '@echo off\n' +
+                        'echo %DOCKER_PSW%| docker login -u %DOCKER_USR% --password-stdin'
+                }
             }
         }
-        
+
         stage('Build Docker Images') {
             steps {
                 bat 'docker compose build'
@@ -72,27 +86,49 @@ pipeline {
             steps {
                 bat 'docker compose ps'
                 bat 'docker compose exec -T postgres pg_isready -U cu_app -d university_applications'
+
                 powershell '''
                     $ErrorActionPreference = "Stop"
-                    $response = Invoke-WebRequest `
-                        -Uri "http://localhost:5000" `
-                        -UseBasicParsing `
-                        -TimeoutSec 15
+                    $ready = $false
 
-                    if ($response.StatusCode -ne 200) {
-                        throw "Frontend health check failed."
+                    for ($i = 0; $i -lt 12; $i++) {
+                        try {
+                            $response = Invoke-WebRequest `
+                                -Uri "http://localhost:5000" `
+                                -UseBasicParsing `
+                                -TimeoutSec 5
+
+                            if ($response.StatusCode -eq 200) {
+                                $ready = $true
+                                break
+                            }
+                        } catch {
+                            Start-Sleep -Seconds 5
+                        }
+                    }
+
+                    if (-not $ready) {
+                        throw "Frontend health check failed at http://localhost:5000"
                     }
 
                     Write-Host "Frontend health check passed."
                 '''
             }
         }
-
     }
 
     post {
+        success {
+            echo 'CI/CD pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed. Collecting Docker diagnostics.'
+            bat 'docker compose ps -a'
+            bat 'docker compose logs --tail=100'
+        }
+
         always {
-            // Cleans up the credentials from the Windows machine afterward
             bat 'docker logout'
         }
     }
