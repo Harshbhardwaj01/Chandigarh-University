@@ -35,6 +35,15 @@ pipeline {
                 bat 'npm test '
             }
         }
+        
+        stage('Verify Docker Access') {
+            steps {
+                bat 'docker --version'
+                bat 'docker compose version'
+                bat 'docker info'
+                bat 'docker compose config -q'
+            }
+        }
 
         stage('Docker Login') {
             steps {
