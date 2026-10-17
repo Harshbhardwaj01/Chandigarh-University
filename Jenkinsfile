@@ -45,6 +45,7 @@ pipeline {
             }
         }
 
+
         stage('Docker Login') {
             steps {
                 // ✅ Fetch the credentials only when this specific stage runs
@@ -54,6 +55,39 @@ pipeline {
 }
             }
         }
+        
+        stage('Build Docker Images') {
+            steps {
+                bat 'docker compose build'
+            }
+        }
+
+        stage('Deploy Application') {
+            steps {
+                bat 'docker compose up -d --build'
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                bat 'docker compose ps'
+                bat 'docker compose exec -T postgres pg_isready -U cu_app -d university_applications'
+                powershell '''
+                    $ErrorActionPreference = "Stop"
+                    $response = Invoke-WebRequest `
+                        -Uri "http://localhost:5000" `
+                        -UseBasicParsing `
+                        -TimeoutSec 15
+
+                    if ($response.StatusCode -ne 200) {
+                        throw "Frontend health check failed."
+                    }
+
+                    Write-Host "Frontend health check passed."
+                '''
+            }
+        }
+
     }
 
     post {
